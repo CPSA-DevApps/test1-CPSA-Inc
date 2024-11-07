@@ -6,6 +6,7 @@ int main()
     string name;
     cout << "Enter your name : " ;
     cin >> name;
+    
     if (name == "admin")
     {
         cout << "OK";

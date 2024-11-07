@@ -1,0 +1,45 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: TestOK
+      id: testok
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: TestOK
+        setup-command: g++ main.cpp -o app
+        command: "./app"
+        input: admin
+        expected-output: OK
+        comparison-method: exact
+        timeout: 1
+        max-score: 30
+    - name: Not OK Test
+      id: not-ok-test
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: Not OK Test
+        setup-command: g++ main.cpp -o main
+        command: "./main"
+        input: sfdkaladfkla
+        expected-output: Not Ok
+        comparison-method: exact
+        timeout: 1
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        TESTOK_RESULTS: "${{steps.testok.outputs.result}}"
+        NOT-OK-TEST_RESULTS: "${{steps.not-ok-test.outputs.result}}"
+      with:
+        runners: testok,not-ok-test
